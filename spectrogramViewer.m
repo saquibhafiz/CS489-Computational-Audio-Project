@@ -21,7 +21,7 @@ for file = files'
     note = tokenNames(1).note;
     freq = noteToFreq(note);
     
-    harmonics = getAverageHarmonics(file.name, 'cosine', 2^14, 0.5);
+    harmonics = getAverageHarmonics(file.name, 'cosine', 2^14, 0.05);
     if (length(harmonics) < 9)
         i = i-1;
         continue;
@@ -35,7 +35,7 @@ for file = files'
     earlyHarmonicWeight = sum(harmonics'./(1:length(harmonics))/harmonics(1));
     
     x(i,1) = evenOddHarmonicsRatio;
-    x(i,2) = earlyHarmonicWeight;
+    x(i,2) = freq;
     y{i} = class;
 end
 
@@ -90,9 +90,9 @@ h(1:3) = gscatter(xGrid(:,1),xGrid(:,2),maxScore,...
     [0.1 0.5 0.5; 0.5 0.1 0.5; 0.5 0.5 0.1]);
 hold on;
 h(4:6) = gscatter(X(:,1),X(:,2),Y);
-title('{\bf Harmonic Score}');
+title('{\bf Infoooo}');
 xlabel('EvenOddHarmonicRatio');
-ylabel('Harmonic Score');
+ylabel('Frequency');
 legend({'string region', 'woodwind region', 'brass region',...
     'observed string', 'observed woodwind', 'observed brass'},...
     'Location', 'Northwest');
