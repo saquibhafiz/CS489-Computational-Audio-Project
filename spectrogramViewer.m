@@ -21,7 +21,7 @@ for file = files'
     note = tokenNames(1).note;
     freq = noteToFreq(note);
     
-    harmonics = getAverageHarmonics(file.name, 'cosine', 2^14);
+    harmonics = getAverageHarmonics(file.name, 'cosine', 2^14, 0.5);
     if (length(harmonics) < 9)
         i = i-1;
         continue;

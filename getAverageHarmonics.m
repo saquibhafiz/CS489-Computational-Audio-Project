@@ -1,4 +1,4 @@
-function averageHarmonics = getAverageHarmonics(fileName, windowType, numPoints)
+function averageHarmonics = getAverageHarmonics(fileName, windowType, numPoints, stepSize)
 
     [sound, fs] = audioread(fileName);
     numTotalSamples = length(sound);
@@ -13,7 +13,7 @@ function averageHarmonics = getAverageHarmonics(fileName, windowType, numPoints)
             w = ones(numPoints,1);
     end
 
-    hopDistance = numPoints/2; % Default 2 hops per N points
+    hopDistance = floor(numPoints * stepSize); % Default 2 hops per N points
 
     steps = 1;
     averageHarmonics = zeros(halfN - 1, 1);
