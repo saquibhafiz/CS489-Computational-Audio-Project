@@ -24,5 +24,5 @@ function averageHarmonics = getAverageHarmonics(fileName, windowType, numPoints,
         steps = steps + 1;
     end
     averageHarmonics = averageHarmonics ./ steps;
-    
+    averageHarmonics = averageHarmonics ./ max(abs(averageHarmonics));
 end
