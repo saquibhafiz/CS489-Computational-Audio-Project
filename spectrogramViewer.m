@@ -2,7 +2,7 @@
 
 clear; close all;
 
-files = dir('*.wav');
+files = dir('audioClips/*.wav');
 x = zeros([length(files), 2]);
 y = cell([length(files), 1]);
 
@@ -21,7 +21,8 @@ for file = files'
     note = tokenNames(1).note;
     freq = noteToFreq(note);
     
-    harmonics = getAverageHarmonics(file.name, 'cosine', 2^14, 0.05);
+    fileName = strcat('audioClips/',file.name);
+    harmonics = getAverageHarmonics(fileName, 'cosine', 2^14, 0.05);
     if (length(harmonics) < 9)
         i = i-1;
         continue;
