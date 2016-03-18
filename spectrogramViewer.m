@@ -22,7 +22,13 @@ for file = files'
     freq = noteToFreq(note);
     
     fileName = strcat('audioClips/',file.name);
-    harmonics = getAverageHarmonics(fileName, 'cosine', 2^14, 0.05);
+    try
+        harmonics = getAverageHarmonics(fileName, note);
+    catch E
+        warning(fileName);
+        i = i-1;
+        continue;
+    end
     if (length(harmonics) < 9)
         i = i-1;
         continue;
@@ -32,11 +38,11 @@ for file = files'
     oddHarmonics = harmonics(3:2:length(harmonics));
     evenOddHarmonicsRatio = sum(evenHarmonics) / sum(oddHarmonics);
     evenOddHarmonicsRatio = evenOddHarmonicsRatio / harmonics(1);
-    
-    earlyHarmonicWeight = sum(harmonics'./(1:length(harmonics))/harmonics(1));
+
+    earlyHarmonicWeight = sum(harmonics./(1:length(harmonics))/harmonics(1));
     
     x(i,1) = evenOddHarmonicsRatio;
-    x(i,2) = freq;
+    x(i,2) = earlyHarmonicWeight;
     y{i} = class;
 end
 
@@ -49,6 +55,17 @@ save('harmonicsModelVars', 'X', 'Y');
 if ~exist('X', 'var') || ~exist('Y', 'var')
     load('harmonicsModelVars');
 end
+
+i = 1;
+for n = 1:size(X, 1)
+    if X(n,1) < 4 && X(n,2) < 2
+        X(i,:) = X(n,:);
+        Y(i,:) = Y(n,:);
+        i = i + 1;
+    end
+end
+X = X(1:i,:);
+Y = Y(1:i,:);
 
 classes = unique(Y);
 numClasses = numel(classes);
@@ -93,7 +110,7 @@ hold on;
 h(4:6) = gscatter(X(:,1),X(:,2),Y);
 title('{\bf Infoooo}');
 xlabel('EvenOddHarmonicRatio');
-ylabel('Frequency');
+ylabel('Harmonic Weight');
 legend({'string region', 'woodwind region', 'brass region',...
     'observed string', 'observed woodwind', 'observed brass'},...
     'Location', 'Northwest');

@@ -1,28 +1,43 @@
-function averageHarmonics = getAverageHarmonics(fileName, windowType, numPoints, stepSize)
+function [averageHarmonics, averageSound] = getAverageHarmonics(fileName, note)
 
     [sound, fs] = audioread(fileName);
-    numTotalSamples = length(sound);
-    halfN = floor((numPoints-1)/2);
+    freq = noteToFreq(note);
+    stepRatioBetweenNotes = 2^(1/12);
+    maxFreq = freq * stepRatioBetweenNotes;
+    minFreq = freq / stepRatioBetweenNotes;
+    
+    leastDiffAmount = Inf;
+    
+    for f = minFreq:maxFreq
+        singleSampleLength = floor(fs / f);
+        soundMatrix = vec2mat(sound, singleSampleLength);
+        soundMatrix = soundMatrix(1:end-1,:);
+        soundMatrix = soundMatrix';
+        soundMatrix = soundMatrix ./ repmat(max(soundMatrix), size(soundMatrix, 1), 1);
+        soundMatrix = soundMatrix';
+        
+        stdDevSound = std(soundMatrix);
+        meanSound = mean(soundMatrix);
 
-    switch windowType,
-        case 'triangle'
-            w = barlett(numPoints);
-        case 'cosine'
-            w = hann(numPoints);
-        case 'none'
-            w = ones(numPoints,1);
+        averageSoundIndx = zeros(size(soundMatrix, 1));
+        for n = 1:size(soundMatrix, 1)
+            if (sum(abs(soundMatrix(n, :) - meanSound) <= 1.5*stdDevSound) == size(soundMatrix, 2))
+                averageSoundIndx(n) = 1;
+            end
+        end
+        
+        soundMatrix = soundMatrix(averageSoundIndx == 1, :);
+        
+        diffAmount = sum(var(soundMatrix));
+        if diffAmount < leastDiffAmount
+            averageSound = mean(soundMatrix);
+            leastDiffAmount = diffAmount;
+        end
     end
-
-    hopDistance = floor(numPoints * stepSize); % Default 2 hops per N points
-
-    steps = 1;
-    averageHarmonics = zeros(halfN - 1, 1);
-    for n1=1:hopDistance:(numTotalSamples-numPoints+1),
-        idx = (n1:n1+numPoints-1)';
-        YY = fft(sound(idx).*w);
-        averageHarmonics = averageHarmonics + abs(YY(2:halfN));
-        steps = steps + 1;
-    end
-    averageHarmonics = averageHarmonics ./ steps;
-    averageHarmonics = averageHarmonics ./ max(abs(averageHarmonics));
+    
+    averageSound = averageSound ./ max(abs(averageSound));
+    
+    averageHarmonics = abs(fft(averageSound));
+    averageHarmonics = averageHarmonics ./ max(averageHarmonics);
+    averageHarmonics = averageHarmonics(2:floor(length(averageHarmonics)/2));
 end
