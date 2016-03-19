@@ -34,12 +34,9 @@ for file = files'
         continue;
     end
     
-    evenHarmonics = harmonics(2:2:length(harmonics));
-    oddHarmonics = harmonics(3:2:length(harmonics));
-    evenOddHarmonicsRatio = sum(evenHarmonics) / sum(oddHarmonics);
-    evenOddHarmonicsRatio = evenOddHarmonicsRatio / harmonics(1);
+    evenOddHarmonicsRatio = getEvenOddHarmonicsRatio(harmonics);
 
-    earlyHarmonicWeight = sum(harmonics./(1:length(harmonics))/harmonics(1));
+    earlyHarmonicWeight = sum(harmonics(2:end)./(2:length(harmonics))/harmonics(1));
     
     x(i,1) = evenOddHarmonicsRatio;
     x(i,2) = earlyHarmonicWeight;
