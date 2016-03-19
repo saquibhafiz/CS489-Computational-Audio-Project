@@ -3,63 +3,71 @@
 clear; close all;
 
 files = dir('audioClips/*.wav');
+x = zeros([length(files), 2]);
+y = cell([length(files), 1]);
 
 %% find harmonic scores
-class = cell(length(files), 1);
-harmonics = cell(length(files), 1);
-i = 1;
+
+i = 0;
 for file = files'
+    i = i+1;
+    if ~isempty(strfind(file.name, 'pizz'))
+        i = i-1;
+        delete(file.name);
+        continue;
+    end
     tokenNames = regexp(file.name,'(?<instrument>\w+)\.[\w\W]*\.(?<note>\w{1,2}\d*)\.stereo\.wav','names');
     instrument = tokenNames(1).instrument;
-    class{i} = instrumentClass(instrument);
+    class = instrumentClass(instrument);
     note = tokenNames(1).note;
     freq = noteToFreq(note);
     
     fileName = strcat('audioClips/',file.name);
-    harmonics{i} = getAverageHarmonics(fileName, note);
+    try
+        harmonics{i} = getAverageHarmonics(fileName, note);
+    catch E
+        warning(fileName);
+        delete(fileName);
+        i = i-1;
+        continue;
+    end
     if (length(harmonics{i}) < 9)
         i = i-1;
         continue;
     end
-    i = i+1;
 end
 
-harmonics = harmonics(1:i);
-class = class(1:i);
-
-save('rawFeatures', 'harmonics', 'class');
+save('rawFeatures', 'harmonics');
 
 %% process raw features
 
-if ~exist('harmonics', 'var') || ~exist('class', 'var')
-    load('rawFeatures');
+if ~exist('', 'var') || ~exist('Y', 'var')
+    load('harmonicsModelVars');
 end
 
-x = zeros(i, 2);
-y = class;
 for j = 1:i
-    harmonic = harmonics{j};
-    evenOddHarmonicsRatio = getEvenOddHarmonicsRatio(harmonic);
+    evenOddHarmonicsRatio = getEvenOddHarmonicsRatio(harmonics{j});
 
-    earlyHarmonicWeight = sum(harmonic(2:end)./(2:length(harmonic))/harmonic(1));
+    earlyHarmonicWeight = sum(harmonics(2:end)./(2:length(harmonics))/harmonics(1));
     
-    x(j,1) = evenOddHarmonicsRatio;
-    x(j,2) = earlyHarmonicWeight;
+    x(i,1) = evenOddHarmonicsRatio;
+    x(i,2) = earlyHarmonicWeight;
+    y{i} = class;
 end
 
 X = x(1:i,:);
 Y = y(1:i);
-save('modelVars', 'X', 'Y');
+save('harmonicsModelVars', 'X', 'Y');
 
 %% model scores
 
 if ~exist('X', 'var') || ~exist('Y', 'var')
-    load('modelVars');
+    load('harmonicsModelVars');
 end
 
 i = 1;
 for n = 1:size(X, 1)
-    if X(n,1) < 4 && X(n,2) < 8
+    if X(n,1) < 4 && X(n,2) < 2
         X(i,:) = X(n,:);
         Y(i,:) = Y(n,:);
         i = i + 1;
@@ -79,12 +87,12 @@ for j = 1:numClasses;
         'KernelFunction', 'RBF', 'BoxConstraint', 1);
 end
 
-save('model', 'SVMModels');
+save('harmonicsModel', 'SVMModels');
 
 %% predict for granularity
 
 if ~exist('SVMModels', 'var')
-    load('model');
+    load('harmonicsModel');
 end
 
 granulartiy = 1000;
