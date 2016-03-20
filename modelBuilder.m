@@ -43,7 +43,7 @@ for j = 1:i
     harmonic = harmonics{j};
     evenOddHarmonicsRatio = getEvenOddHarmonicsRatio(harmonic);
 
-    earlyHarmonicWeight = sum(harmonic(2:end)./(2:length(harmonic))/harmonic(1));
+    earlyHarmonicWeight = getFundamentalHarmonicWeight(harmonic);
     
     x(j,1) = evenOddHarmonicsRatio;
     x(j,2) = earlyHarmonicWeight;

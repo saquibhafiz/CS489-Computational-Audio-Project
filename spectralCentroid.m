@@ -16,7 +16,7 @@ for file = files'
     fileName = strcat('audioClips/',file.name);
     [signal, Fs] = audioread(fileName);
     
-    factorValue = getZeroCrossRate(signal, Fs/10, Fs/100);
+    factorValue = var(getSpectralCentroid(signal, Fs/10, Fs/100, Fs));
     
     if strcmp('woodwind', class)
         woodwindFactorValues(i) = factorValue;
@@ -30,11 +30,11 @@ for file = files'
 end
 i = i - 1;
 
-save('zeroCrossoverRateFactorValues', 'woodwindFactorValues', 'brassFactorValues', 'stringFactorValues');
+save('spectralCentroidVarianceFactorValues', 'woodwindFactorValues', 'brassFactorValues', 'stringFactorValues');
 
 %% Use factor values
 if ~exist('woodwindFactorValues', 'var') || ~exist('brassFactorValues', 'var') || ~exist('stringFactorValues', 'var')
-    load('zeroCrossoverRateFactorValues');
+    load('spectralCentroidVarianceFactorValues');
 end
 
 woodwindFactorValues = woodwindFactorValues(1:i);
@@ -61,7 +61,7 @@ plot(linspace(1, i, 100*i), brassFactorAverage, 'k');
 hold on;
 plot(linspace(1, i, 100*i), stringFactorAverage, 'r');
 hold on;
-title('zeroCrossoverRateFactorValues');
-ylabel('Zero Crossover Rate');
+title('spectralCentroidVarianceFactorValues');
+ylabel('Spectral Centroid Variance');
 xlabel('Number of file samples');
 legend('Woodwind', 'Brass', 'String', 'Woodwind Average', 'Brass Average', 'String Average');

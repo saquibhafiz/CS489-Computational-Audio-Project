@@ -1,4 +1,4 @@
-function C = getSpectralCentroid(signal,windowLength, step, fs)
+function C = getSpectralCentroid(signal, windowLength, step, fs)
 
 % function C = SpectralCentroid(signal,windowLength, step, fs)
 % 
