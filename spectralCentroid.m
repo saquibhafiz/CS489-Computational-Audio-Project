@@ -8,7 +8,7 @@ woodwindFactorValues = zeros(length(files));
 brassFactorValues = zeros(length(files));
 
 i = 1;
-for file = files'   
+for file = files'
     tokenNames = regexp(file.name,'(?<instrument>\w+)\.[\w\W]*\.(?<note>\w{1,2}\d*)\.stereo\.wav','names');
     instrument = tokenNames(1).instrument;
     class = instrumentClass(instrument);
