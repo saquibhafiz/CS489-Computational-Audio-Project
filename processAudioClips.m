@@ -7,7 +7,7 @@ for file = files'
         sound = double(sound(:,1) + sound(:,2))/2;
         step = 10;
         window = 100;
-        sc = SpectralCentroid(sound, window, step, fs);
+        sc = getSpectralCentroid(sound, window, step, fs);
 
         start = 1;
         last = 1;

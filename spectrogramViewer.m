@@ -7,6 +7,7 @@ files = dir('audioClips/*.wav');
 %% find harmonic scores
 class = cell(length(files), 1);
 harmonics = cell(length(files), 1);
+
 i = 1;
 for file = files'
     tokenNames = regexp(file.name,'(?<instrument>\w+)\.[\w\W]*\.(?<note>\w{1,2}\d*)\.stereo\.wav','names');
@@ -23,6 +24,7 @@ for file = files'
     end
     i = i+1;
 end
+i = i-1;
 
 harmonics = harmonics(1:i);
 class = class(1:i);
