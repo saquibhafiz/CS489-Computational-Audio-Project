@@ -1,3 +1,3 @@
 function fundamentalHarmonicWeight = getFundamentalHarmonicWeight(harmonic)
-    fundamentalHarmonicWeight = sum(harmonic(2:end)./(2:length(harmonic)))/harmonic(1);
+    fundamentalHarmonicWeight = harmonic(1)/sum(harmonic(2:end)./(2:length(harmonic)));
 end

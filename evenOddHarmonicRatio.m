@@ -29,7 +29,7 @@ for file = files'
         continue;
     end
 
-    factorValue = getEvenOddHarmonicsRatio(averageHarmonic);
+    factorValue = getOddEvenHarmonicsRatio(averageHarmonic);
 
     if strcmp('woodwind', class)
         woodwindFactorValues(w,:) = [i, factorValue];
