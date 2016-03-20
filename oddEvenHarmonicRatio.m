@@ -53,12 +53,14 @@ woodwindFactorValues = woodwindFactorValues(1:w,:);
 brassFactorValues = brassFactorValues(1:b,:);
 stringFactorValues = stringFactorValues(1:s,:);
 
-save('evenOddHarmonicRatioFactorValues', 'woodwindFactorValues', 'brassFactorValues', 'stringFactorValues');
+save('oddEvenHarmonicRatioFactorValues', 'woodwindFactorValues', 'brassFactorValues', 'stringFactorValues');
 
 %% Use factor values
 if ~exist('woodwindFactorValues', 'var') || ~exist('brassFactorValues', 'var') || ~exist('stringFactorValues', 'var')
-    load('evenOddHarmonicRatioFactorValues');
+    load('oddEvenHarmonicRatioFactorValues');
 end
+
+image = figure;
 
 w = length(woodwindFactorValues);
 b = length(brassFactorValues);
@@ -85,7 +87,9 @@ plot([0, i], [brassFactorAverage(2), brassFactorAverage(2)], 'k');
 hold on;
 plot([0, i], [stringFactorAverage(2), stringFactorAverage(2)], 'r');
 hold on;
-title('Even-Odd Harmonics Ratio Factor');
-ylabel('Even-Odd Harmonics Ratio Factor');
+title('Odd-Even Harmonics Ratio Factor');
+ylabel('Odd-Even Harmonics Ratio Factor');
 xlabel('sample #');
 legend('Woodwind', 'Brass', 'String', 'Woodwind Average', 'Brass Average', 'String Average');
+
+saveas(image, 'oddEvenHarmonicRatio.jpg');

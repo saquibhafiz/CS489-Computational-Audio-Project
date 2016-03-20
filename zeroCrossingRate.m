@@ -52,6 +52,8 @@ if ~exist('woodwindFactorValues', 'var') || ~exist('brassFactorValues', 'var') |
     load('zeroCrossingRateFactorValues');
 end
 
+image = figure;
+
 w = length(woodwindFactorValues);
 b = length(brassFactorValues);
 s = length(stringFactorValues);
@@ -81,3 +83,5 @@ title('Zero Crossing Rate Factor');
 ylabel('Zero Crossing Rate Factor');
 xlabel('sample #');
 legend('Woodwind', 'Brass', 'String', 'Woodwind Average', 'Brass Average', 'String Average');
+
+saveas(image, 'zeroCrossingRate.jpg');

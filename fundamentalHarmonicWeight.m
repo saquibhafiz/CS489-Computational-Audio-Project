@@ -66,6 +66,8 @@ if ~exist('woodwindFactorValues', 'var') || ~exist('brassFactorValues', 'var') |
     load('fundamentalHarmonicWeightFactorValues');
 end
 
+image = figure;
+
 w = length(woodwindFactorValues);
 b = length(brassFactorValues);
 s = length(stringFactorValues);
@@ -95,3 +97,5 @@ title('Fundamental Harmonic Weight Factor');
 ylabel('Fundamental Harmonic Weight Factor');
 xlabel('sample #');
 legend('Woodwind', 'Brass', 'String', 'Woodwind Average', 'Brass Average', 'String Average');
+
+saveas(image, 'fundamentalHarmonicWeight.jpg');

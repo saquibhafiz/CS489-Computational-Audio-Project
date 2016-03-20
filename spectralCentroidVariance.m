@@ -52,6 +52,8 @@ if ~exist('woodwindFactorValues', 'var') || ~exist('brassFactorValues', 'var') |
     load('spectralCentroidVarianceFactorValues');
 end
 
+image = figure;
+
 w = length(woodwindFactorValues);
 b = length(brassFactorValues);
 s = length(stringFactorValues);
@@ -81,3 +83,5 @@ title('Spectral Centroid Variance Factor');
 ylabel('Spectral Centroid Variance Factor');
 xlabel('sample #');
 legend('Woodwind', 'Brass', 'String', 'Woodwind Average', 'Brass Average', 'String Average');
+
+saveas(image, 'spectralCentroidVariance.jpg');
