@@ -2,7 +2,7 @@
 % and edited to suit our needs for our specifications as described in the
 % documentation
 
-function zeroCrossRate = getZeroCrossRate(signal,windowLength, step)
+function zeroCrossRate = getZeroCrossRate(signal, windowLength, step)
     curPos = 1;
     L = length(signal);
     numOfFrames = floor((L-windowLength)/step) + 1;
