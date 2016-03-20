@@ -1,3 +1,4 @@
+%% Calculate factor values
 clear; close all;
 
 files = dir('audioClips/*.wav');
@@ -32,6 +33,13 @@ i = i - 1;
 woodwindFactorValues = woodwindFactorValues(1:i);
 brassFactorValues = brassFactorValues(1:i);
 stringFactorValues = stringFactorValues(1:i);
+
+save('crestFactorValues', 'woodwindFactorValues', 'brassFactorValues', 'stringFactorValues');
+
+%% Use factor values
+if ~exist('woodwindFactorValues', 'var') || ~exist('brassFactorValues', 'var') || ~exist('stringFactorValues', 'var')
+    load('crestFactorValues');
+end
 
 woodwindFactorAverage = mean(woodwindFactorValues);
 woodwindFactorVar = var(woodwindFactorValues);
