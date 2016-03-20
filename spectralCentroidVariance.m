@@ -21,7 +21,7 @@ for file = files'
     fileName = strcat('audioClips/',file.name);
     [signal, Fs] = audioread(fileName);
     
-    factorValue = getCrestFactor(signal);
+    factorValue = var(getSpectralCentroid(signal, Fs/10, Fs/100, Fs));
     
     if strcmp('woodwind', class)
         woodwindFactorValues(w,:) = [i, factorValue];
@@ -45,11 +45,11 @@ woodwindFactorValues = woodwindFactorValues(1:w,:);
 brassFactorValues = brassFactorValues(1:b,:);
 stringFactorValues = stringFactorValues(1:s,:);
 
-save('crestFactorValues', 'woodwindFactorValues', 'brassFactorValues', 'stringFactorValues');
+save('spectralCentroidVarianceFactorValues', 'woodwindFactorValues', 'brassFactorValues', 'stringFactorValues');
 
 %% Use factor values
 if ~exist('woodwindFactorValues', 'var') || ~exist('brassFactorValues', 'var') || ~exist('stringFactorValues', 'var')
-    load('crestFactorValues');
+    load('spectralCentroidVarianceFactorValues');
 end
 
 w = length(woodwindFactorValues);
@@ -57,11 +57,11 @@ b = length(brassFactorValues);
 s = length(stringFactorValues);
 i = w + b + s;
 
-woodwindFactorAverage = mean(woodwindFactorValues);
+woodwindFactorAverage = mean(woodwindFactorValues(~isnan(woodwindFactorValues(:,2)), :));
 woodwindFactorVar = var(woodwindFactorValues);
-brassFactorAverage = mean(brassFactorValues);
+brassFactorAverage = mean(brassFactorValues(~isnan(brassFactorValues(:,2)), :));
 brassFactorVar = var(brassFactorValues);
-stringFactorAverage = mean(stringFactorValues);
+stringFactorAverage = mean(stringFactorValues(~isnan(stringFactorValues(:,2)), :));
 stringFactorVar = var(stringFactorValues);
 
 plot(woodwindFactorValues(:,1), woodwindFactorValues(:,2), 'og');
@@ -77,7 +77,7 @@ plot([0, i], [brassFactorAverage(2), brassFactorAverage(2)], 'k');
 hold on;
 plot([0, i], [stringFactorAverage(2), stringFactorAverage(2)], 'r');
 hold on;
-title('Crest Factor');
-ylabel('Crest Factor');
+title('Spectral Centroid Variance Factor');
+ylabel('Spectral Centroid Variance Factor');
 xlabel('sample #');
 legend('Woodwind', 'Brass', 'String', 'Woodwind Average', 'Brass Average', 'String Average');

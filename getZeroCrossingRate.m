@@ -14,4 +14,5 @@ function zeroCrossRate = getZeroCrossRate(signal, windowLength, step)
         zeroCrossRate(i) = (1/(2*windowLength)) * sum(abs(sign(window) - sign(window2)));
         curPos = curPos + step;
     end
+    zeroCrossRate = mean(zeroCrossRate);
 end
