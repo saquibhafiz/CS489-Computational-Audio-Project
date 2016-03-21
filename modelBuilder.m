@@ -56,7 +56,7 @@ filteredModelData = modelData(validIndx,:);
 save('filteredModelDataLabel', 'filteredModelData', 'labels', 'w', 'b', 's');
 
 %% build k models for each type of classification
-k = 100;
+k = 10;
 
 if ~exist('filteredModelData', 'var') || ~exist('labels', 'var')
     load('filteredModelDataLabel');
@@ -84,6 +84,10 @@ for i = 1:k
     [svmModel, classes] = buildSVMModel(X, Y);
     svmScore = testSVMModel(svmModel, classes, Xtest, Ytest);
     averageSVMModelScore = averageSVMModelScore + svmScore;
+    
+    knnModel = buildKNNModel(X, Y);
+    knnScore = testKNNModel(knnModel, Xtest, Ytest);
+    averageKNNModelScore = averageKNNModelScore + knnScore;
 end
 
 averageSVMModelScore = averageSVMModelScore / k;
