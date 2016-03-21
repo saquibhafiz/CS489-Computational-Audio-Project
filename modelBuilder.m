@@ -56,7 +56,7 @@ filteredModelData = modelData(validIndx,:);
 save('filteredModelDataLabel', 'filteredModelData', 'labels', 'w', 'b', 's');
 
 %% build k models for each type of classification
-k = 10;
+k = 1000;
 
 if ~exist('filteredModelData', 'var') || ~exist('labels', 'var')
     load('filteredModelDataLabel');
@@ -88,6 +88,10 @@ for i = 1:k
     knnModel = buildKNNModel(X, Y);
     knnScore = testKNNModel(knnModel, Xtest, Ytest);
     averageKNNModelScore = averageKNNModelScore + knnScore;
+    
+    dTreeModel = buildDTreeModel(X, Y);
+    dTreeScore = testDTreeModel(dTreeModel, Xtest, Ytest);
+    averageDTreeModelScore = averageDTreeModelScore + dTreeScore;
 end
 
 averageSVMModelScore = averageSVMModelScore / k;
