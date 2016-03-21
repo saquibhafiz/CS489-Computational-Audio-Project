@@ -31,34 +31,44 @@ for m = 1:length(modelDataFiles)
     end
 end
 
-save('unfilteredModelData', 'modelData');
+save('unfilteredModelData', 'modelData', 'w', 'b', 's');
 
-%% model scores
-
-if ~exist('X', 'var') || ~exist('Y', 'var')
-    load('modelVars');
+%% filter data
+if ~exist('modelData', 'var')
+    load('unfilteredModelData');
 end
 
-i = 1;
-for n = 1:size(X, 1)
-    if X(n,1) < 4 && X(n,2) < 8
-        X(i,:) = X(n,:);
-        Y(i,:) = Y(n,:);
-        i = i + 1;
-    end
+validIndx = ~any(isnan(modelData),2);
+
+W = repmat({'W'}, w, 1);
+B = repmat({'B'}, b, 1);
+S = repmat({'S'}, s, 1);
+
+s = sum(validIndx(w+b+1:end)~=0);
+b = sum(validIndx(w+1:w+b)~=0);
+w = sum(validIndx(1:w)~=0);
+
+labels = {W{:}, B{:}, S{:}}';
+labels = labels(validIndx,:);
+
+filteredModelData = modelData(validIndx,:);
+
+save('filteredModelDataLabel', 'filteredModelData', 'labels', 'w', 'b', 's');
+
+%% build models
+if ~exist('filteredModelData', 'var') || ~exist('labels', 'var')
+    load('filteredModelDataLabel');
 end
-X = X(1:i,:);
-Y = Y(1:i,:);
 
-classes = unique(Y);
-numClasses = numel(classes);
-SVMModels = cell(numClasses,1);
-rng(1); % For reproducibility (random number generator http://www.mathworks.com/help/matlab/ref/rng.html)
+n = w + b + s;
 
-for j = 1:numClasses;
-    indx = strcmp(Y, classes(j)); % Create binary classes for each classifier
-    SVMModels{j} = fitcsvm(X, indx, 'ClassNames', [false true], 'Standardize', true,...
-        'KernelFunction', 'RBF', 'BoxConstraint', 1);
-end
+randomPerm = randperm(n);
+testCutOff = floor(n * 0.7);
 
-save('model', 'SVMModels');
+randomizedModelData = filteredModelData(randomPerm,:);
+X = randomizedModelData(1:testCutOff,:);
+
+randomizedModelLabels = labels(randomPerm,:);
+randomizedModelLabels = randomizedModelLabels';
+Y = randomizedModelLabels(1:testCutOff);
+Y = Y';
