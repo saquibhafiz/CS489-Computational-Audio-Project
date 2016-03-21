@@ -11,9 +11,11 @@ s = 1;
 w = 1;
 b = 1;
 
-i = 1;
+i = 0;
 
 for file = files'
+    i = i + 1;
+
     tokenNames = regexp(file.name,'(?<instrument>\w+)\.[\w\W]*\.(?<note>\w{1,2}\d*)\.stereo\.wav','names');
     instrument = tokenNames(1).instrument;
     note = tokenNames(1).note;
@@ -23,13 +25,11 @@ for file = files'
 
     try
         [averageHarmonic, averageSound] = getAverageHarmonics(fileName, note);
+        factorValue = getOddEvenHarmonicsRatio(averageHarmonic);
     catch
         warning(fileName);
-        i = i + 1;
-        continue;
+        factorValue = NaN;
     end
-
-    factorValue = getOddEvenHarmonicsRatio(averageHarmonic);
 
     if strcmp('woodwind', class)
         woodwindFactorValues(w,:) = [i, factorValue];
@@ -41,8 +41,6 @@ for file = files'
         stringFactorValues(s,:) = [i, factorValue];
         s = s + 1;
     end
-    
-    i = i + 1;
 end
 
 w = w - 1;

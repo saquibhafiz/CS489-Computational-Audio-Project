@@ -2,56 +2,36 @@
 
 clear; close all;
 
-files = dir('audioClips/*.wav');
+modelDataFiles = {'crestFactorValues', 'fundamentalHarmonicWeightFactorValues', 'oddEvenHarmonicRatioFactorValues', 'spectralCentroidVarianceFactorValues'};
 
-%% find harmonic scores
-class = cell(length(files), 1);
-harmonics = cell(length(files), 1);
+modelData = [];
 
-i = 1;
-for file = files'
-    tokenNames = regexp(file.name,'(?<instrument>\w+)\.[\w\W]*\.(?<note>\w{1,2}\d*)\.stereo\.wav','names');
-    instrument = tokenNames(1).instrument;
-    class{i} = instrumentClass(instrument);
-    note = tokenNames(1).note;
-    freq = noteToFreq(note);
-    
-    fileName = strcat('audioClips/',file.name);
-    harmonics{i} = getAverageHarmonics(fileName, note);
-    if (length(harmonics{i}) < 9)
-        i = i-1;
-        continue;
+for m = 1:length(modelDataFiles)
+    load(modelDataFiles{m});
+
+    w = length(woodwindFactorValues);
+    b = length(brassFactorValues);
+    s = length(stringFactorValues);
+    i = w + b + s;
+
+    if isempty(modelData)
+        modelData = zeros(i, length(modelDataFiles));
     end
-    i = i+1;
-end
-i = i-1;
 
-harmonics = harmonics(1:i);
-class = class(1:i);
+    for n = 1:w
+        modelData(n,m) = woodwindFactorValues(n,2);
+    end
 
-save('rawFeatures', 'harmonics', 'class');
+    for n = 1:b
+        modelData(n+w,m) = brassFactorValues(n,2);
+    end
 
-%% process raw features
-
-if ~exist('harmonics', 'var') || ~exist('class', 'var')
-    load('rawFeatures');
-end
-
-x = zeros(i, 2);
-y = class;
-for j = 1:i
-    harmonic = harmonics{j};
-    evenOddHarmonicsRatio = getEvenOddHarmonicsRatio(harmonic);
-
-    earlyHarmonicWeight = getFundamentalHarmonicWeight(harmonic);
-    
-    x(j,1) = evenOddHarmonicsRatio;
-    x(j,2) = earlyHarmonicWeight;
+    for n = 1:s
+        modelData(n+w+b,m) = stringFactorValues(n,2);
+    end
 end
 
-X = x(1:i,:);
-Y = y(1:i);
-save('modelVars', 'X', 'Y');
+save('unfilteredModelData', 'modelData');
 
 %% model scores
 
@@ -82,40 +62,3 @@ for j = 1:numClasses;
 end
 
 save('model', 'SVMModels');
-
-%% predict for granularity
-
-if ~exist('SVMModels', 'var')
-    load('model');
-end
-
-granulartiy = 1000;
-x1Gran = (max(X(:,1))-min(X(:,1)))/granulartiy;
-x2Gran = (max(X(:,2))-min(X(:,2)))/granulartiy;
-[x1Grid, x2Grid] = meshgrid(min(X(:,1)):x1Gran:max(X(:,1)), min(X(:,2)):x2Gran:max(X(:,2)));
-xGrid = [x1Grid(:), x2Grid(:)];
-N = size(xGrid ,1);
-scores = zeros(N, numClasses);
-
-for j = 1:numClasses;
-    [~, score] = predict(SVMModels{j}, xGrid);
-    scores(:,j) = score(:,2); % Second column contains positive-class scores
-end
-
-[~,maxScore] = max(scores,[],2);
-
-%% plot figure
-
-figure;
-h(1:3) = gscatter(xGrid(:,1),xGrid(:,2),maxScore,...
-    [0.1 0.5 0.5; 0.5 0.1 0.5; 0.5 0.5 0.1]);
-hold on;
-h(4:6) = gscatter(X(:,1),X(:,2),Y);
-title('{\bf Infoooo}');
-xlabel('EvenOddHarmonicRatio');
-ylabel('Harmonic Weight');
-legend({'string region', 'woodwind region', 'brass region',...
-    'observed string', 'observed woodwind', 'observed brass'},...
-    'Location', 'Northwest');
-axis tight;
-hold off;
