@@ -55,20 +55,37 @@ filteredModelData = modelData(validIndx,:);
 
 save('filteredModelDataLabel', 'filteredModelData', 'labels', 'w', 'b', 's');
 
-%% build models
+%% build k models for each type of classification
+k = 100;
+
 if ~exist('filteredModelData', 'var') || ~exist('labels', 'var')
     load('filteredModelDataLabel');
 end
 
-n = w + b + s;
+averageSVMModelScore = 0;
+averageKNNModelScore = 0;
+averageDTreeModelScore = 0;
 
-randomPerm = randperm(n);
-testCutOff = floor(n * 0.7);
+for i = 1:k
+    n = w + b + s;
 
-randomizedModelData = filteredModelData(randomPerm,:);
-X = randomizedModelData(1:testCutOff,:);
+    rng('shuffle');
+    randomPerm = randperm(n);
+    testCutOff = floor(n * 0.7);
 
-randomizedModelLabels = labels(randomPerm,:);
-randomizedModelLabels = randomizedModelLabels';
-Y = randomizedModelLabels(1:testCutOff);
-Y = Y';
+    randomizedModelData = filteredModelData(randomPerm,:);
+    X = randomizedModelData(1:testCutOff,:);
+    Xtest = randomizedModelData(testCutOff+1:end,:);
+
+    randomizedModelLabels = labels(randomPerm,:);
+    Y = randomizedModelLabels(1:testCutOff);
+    Ytest = randomizedModelLabels(testCutOff+1:end);
+    
+    [svmModel, classes] = buildSVMModel(X, Y);
+    svmScore = testSVMModel(svmModel, classes, Xtest, Ytest);
+    averageSVMModelScore = averageSVMModelScore + svmScore;
+end
+
+averageSVMModelScore = averageSVMModelScore / k;
+averageKNNModelScore = averageKNNModelScore / k;
+averageDTreeModelScore = averageDTreeModelScore / k;

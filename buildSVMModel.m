@@ -1,8 +1,8 @@
-function buildSVMModel(X,Y)
+function [SVMModels, classes] = buildSVMModel(X,Y)
     classes = unique(Y);
     numClasses = numel(classes);
     SVMModels = cell(numClasses,1);
-    rng(1); % For reproducibility (random number generator http://www.mathworks.com/help/matlab/ref/rng.html)
+    rng('shuffle');
 
     for j = 1:numClasses;
         indx = strcmp(Y, classes(j)); % Create binary classes for each classifier
