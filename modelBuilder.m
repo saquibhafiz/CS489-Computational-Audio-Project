@@ -56,11 +56,11 @@ filteredModelData = modelData(validIndx,:);
 save('filteredModelDataLabel', 'filteredModelData', 'labels', 'w', 'b', 's');
 
 %% build k models for each type of classification
-k = 1000;
-ks = 1:k;
-
-clear all;
+clear;
 load('filteredModelDataLabel');
+
+k = 10000;
+ks = 1:k;
 
 N = w + b + s;
 testCutOff = floor(N * 0.7);
@@ -148,11 +148,36 @@ for i = ks
     overallCorrectlyPredicted(i,:) = overallCorrectlyPredicted(i,:)/n;
 end
 
-mNum = 1;
+save('plotData', 'brassCorrectlyPredicted', 'woodwindCorrectlyPredicted', 'stringCorrectlyPredicted', 'overallCorrectlyPredicted');
 
-figure; title('SVM Model Prediction Rate'); xlabel('# of trials'); ylabel('% correct');
+%% graph data
+clear;
+load('plotData');
+ks = 1:size(overallCorrectlyPredicted, 1);
+
+mNum = 1;
+figure;
 plot(ks, brassCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, woodwindCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, stringCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, overallCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 legend('brass','woodwind','string','overall','Location','northwest');
+title('SVM Model Prediction Rate'); xlabel('# of trials'); ylabel('% correct');
+
+mNum = 2;
+figure;
+plot(ks, brassCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, woodwindCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, stringCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, overallCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+legend('brass','woodwind','string','overall','Location','northwest');
+title('KNN Model Prediction Rate'); xlabel('# of trials'); ylabel('% correct');
+
+mNum = 3;
+figure;
+plot(ks, brassCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, woodwindCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, stringCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, overallCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+legend('brass','woodwind','string','overall','Location','northwest');
+title('DTREE Model Prediction Rate'); xlabel('# of trials'); ylabel('% correct');
