@@ -1,19 +1,11 @@
-function svmScore = testSVMModel(model, classes, X, Y)
-    svmScore = 0;
-
+function svmPredictions = testSVMModel(model, classes, X)
+%     Scores = zeros(numel(classes));
     for j = 1:numel(classes);
         [~,score] = predict(model{j}, X);
+        size(score);
         Scores(:,j) = score(:,2);
     end
     [~,maxScore] = max(Scores,[],2);
 
-    predictions = classes(maxScore);
-
-    for j = 1:length(Y)
-        if predictions{j} == Y{j};
-            svmScore = svmScore + 1;
-        end
-    end
-    
-    svmScore = svmScore / length(X);
+    svmPredictions = classes(maxScore);
 end
