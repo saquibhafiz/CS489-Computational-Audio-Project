@@ -1,8 +1,7 @@
 %% initialize variables
-
 clear; close all;
 
-modelDataFiles = {'crestFactorValues', 'fundamentalHarmonicWeightFactorValues', 'oddEvenHarmonicRatioFactorValues', 'spectralCentroidVarianceFactorValues'};
+modelDataFiles = {'crestFactorValues', 'fundamentalHarmonicWeightFactorValues', 'oddEvenHarmonicRatioFactorValues', 'spectralCentroidVarianceFactorValues', 'phaseImpactFactorValues'};
 
 modelData = [];
 
@@ -59,16 +58,16 @@ save('filteredModelDataLabel', 'filteredModelData', 'labels', 'w', 'b', 's');
 clear;
 load('filteredModelDataLabel');
 
-k = 10000;
+k = 1000;
 ks = 1:k;
 
 N = w + b + s;
 testCutOff = floor(N * 0.7);
 
-brassCorrectlyPredicted = zeros(k, 3);
-woodwindCorrectlyPredicted = zeros(k, 3);
-stringCorrectlyPredicted = zeros(k, 3);
-overallCorrectlyPredicted = repmat(N - testCutOff, [k 3]);
+brassCorrectlyPredicted = zeros(k, 4);
+woodwindCorrectlyPredicted = zeros(k, 4);
+stringCorrectlyPredicted = zeros(k, 4);
+overallCorrectlyPredicted = repmat(N - testCutOff, [k 4]);
 
 for i = ks
     rng('shuffle');
@@ -90,6 +89,8 @@ for i = ks
 
     dTreeModel = buildDTreeModel(X, Y);
     dTreePredictions = testDTreeModel(dTreeModel, Xtest);
+    
+    hybridPredictions = hybridizePredictions([svmPredictions knnPredictions dTreePredictions]);
 
     b = 0;
     w = 0;
@@ -138,6 +139,18 @@ for i = ks
         else
             overallCorrectlyPredicted(i, 3) = overallCorrectlyPredicted(i, 3) - 1;
         end
+        
+        if strcmp(Ytest(j), hybridPredictions(j))
+            if strcmp(Ytest(j), 'B')
+                brassCorrectlyPredicted(i, 4) = brassCorrectlyPredicted(i, 4) + 1;
+            elseif strcmp(Ytest(j), 'W')
+                woodwindCorrectlyPredicted(i, 4) = woodwindCorrectlyPredicted(i, 4) + 1;
+            elseif strcmp(Ytest(j), 'S')
+                stringCorrectlyPredicted(i, 4) = stringCorrectlyPredicted(i, 4) + 1;
+            end
+        else
+            overallCorrectlyPredicted(i, 4) = overallCorrectlyPredicted(i, 4) - 1;
+        end
     end
 
     n = b + w + s;
@@ -155,29 +168,56 @@ clear;
 load('plotData');
 ks = 1:size(overallCorrectlyPredicted, 1);
 
+brassCorrectlyPredicted = brassCorrectlyPredicted*100;
+woodwindCorrectlyPredicted = woodwindCorrectlyPredicted*100;
+stringCorrectlyPredicted = stringCorrectlyPredicted*100;
+overallCorrectlyPredicted = overallCorrectlyPredicted*100;
+
 mNum = 1;
-figure;
+f = figure;
 plot(ks, brassCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, woodwindCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, stringCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, overallCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 legend('brass','woodwind','string','overall','Location','northwest');
-title('SVM Model Prediction Rate'); xlabel('# of trials'); ylabel('% correct');
+title('SVM Model Prediction Rate'); xlabel('trial #'); ylabel('% correct'); ylim([0 100]);
+saveas(f, 'svmPreditionRate.jpg');
 
 mNum = 2;
-figure;
+f = figure;
 plot(ks, brassCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, woodwindCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, stringCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, overallCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 legend('brass','woodwind','string','overall','Location','northwest');
-title('KNN Model Prediction Rate'); xlabel('# of trials'); ylabel('% correct');
+title('KNN Model Prediction Rate'); xlabel('trial #'); ylabel('% correct'); ylim([0 100]);
+saveas(f, 'knnPreditionRate.jpg');
 
 mNum = 3;
-figure;
+f = figure;
 plot(ks, brassCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, woodwindCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, stringCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 plot(ks, overallCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
 legend('brass','woodwind','string','overall','Location','northwest');
-title('DTREE Model Prediction Rate'); xlabel('# of trials'); ylabel('% correct');
+title('DTREE Model Prediction Rate'); xlabel('trial #'); ylabel('% correct'); ylim([0 100]);
+saveas(f, 'dTreePreditionRate.jpg');
+
+mNum = 4;
+f = figure;
+plot(ks, brassCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, woodwindCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, stringCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+plot(ks, overallCorrectlyPredicted(:,mNum), 'LineWidth', 2); hold on;
+legend('brass','woodwind','string','overall','Location','northwest');
+title('Hybrid Model Prediction Rate'); xlabel('trial #'); ylabel('% correct'); ylim([0 100]);
+saveas(f, 'hybridPreditionRate.jpg');
+
+display(mean(brassCorrectlyPredicted));
+display(std(brassCorrectlyPredicted));
+
+display(mean(woodwindCorrectlyPredicted));
+display(std(woodwindCorrectlyPredicted));
+
+display(mean(stringCorrectlyPredicted));
+display(std(stringCorrectlyPredicted));
